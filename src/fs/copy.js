@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { copyFile, stat, mkdir, readdir } from 'fs/promises';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,18 +9,26 @@ const copy = async () => {
   const FOLDER_NAME = 'files';
   const COPY_FOLDER_NAME = 'files-copy';
 
-  if(!existsSync(join(currentDirPath, FOLDER_NAME))){
-    throw new Error('FS operation failed: The files folder does not exist')
-  }
-  if(existsSync(join(currentDirPath, COPY_FOLDER_NAME))){
-    throw new Error('FS operation failed: the files-copy folder already exists')
+  try {
+    await stat(join(currentDirPath, FOLDER_NAME));
+  } catch (error) {
+    throw new Error('FS operation failed: The files folder does not exist');
   }
 
-  mkdirSync(join(currentDirPath, COPY_FOLDER_NAME), { recursive: true });
-  const originPath = readdirSync(join(currentDirPath, FOLDER_NAME));
+  try {
+    await stat(join(currentDirPath, COPY_FOLDER_NAME));
+    throw new Error('FS operation failed: the files-copy folder already exists');
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
+
+  await mkdir(join(currentDirPath, COPY_FOLDER_NAME), { recursive: true });
+  const originPath = await readdir(join(currentDirPath, FOLDER_NAME));
 
   for (const file of originPath) {
-    copyFileSync(join(currentDirPath, FOLDER_NAME, file), join(currentDirPath, COPY_FOLDER_NAME, file));
+    copyFile(join(currentDirPath, FOLDER_NAME, file), join(currentDirPath, COPY_FOLDER_NAME, file));
   }
 
 };

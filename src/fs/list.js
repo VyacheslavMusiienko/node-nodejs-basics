@@ -1,24 +1,26 @@
+import { readdir, stat } from 'fs/promises';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import {readdirSync, existsSync } from 'fs';
+
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirPath = dirname(currentFilePath);
+const FOLDER_NAME = 'files';
+
+const filePath = join(currentDirPath, FOLDER_NAME);
 
 const list = async () => {
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const currentDirPath = dirname(currentFilePath);
-  const FOLDER_NAME = 'files';
 
-  const filePath = join(currentDirPath, FOLDER_NAME);
-
-  if(!existsSync(filePath)) {
-    throw new Error('FS operation failed: ' + error.message);
+  try {
+    await stat(filePath);
+  } catch (error) {
+    throw new Error('FS operation failed');
   }
 
-  const files = readdirSync(filePath);
+  const files = await readdir(filePath);
 
   files.forEach((file) => {
     console.log(file);
   })
-
 };
 
 try {
