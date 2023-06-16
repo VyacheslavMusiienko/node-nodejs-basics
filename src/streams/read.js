@@ -1,19 +1,13 @@
 import { createReadStream } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { stdout } from 'process';
+import { pipeline } from 'stream/promises';
+import { fileURLToPath } from 'url';
+
+const filePath = join(dirname(fileURLToPath(import.meta.url)),'files','fileToRead.txt');
 
 const read = async () => {
-  const filePath = join(dirname(fileURLToPath(import.meta.url)),'files','fileToRead.txt');
-  const readStream = createReadStream(filePath);
-
-  readStream.on('data', (chunk) => {
-    stdout.write(chunk);
-  });
-
-  readStream.on('error', (err) => {
-    console.error(`Error reading file: ${err}`);
-  });
+  await pipeline(createReadStream(filePath), stdout)
 };
 
 await read();
