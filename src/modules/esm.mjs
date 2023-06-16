@@ -1,6 +1,7 @@
 import { createServer as createServerHttp } from 'http';
 import { release, version } from 'os';
-import { sep } from 'path';
+import { dirname, sep } from 'path';
+import { fileURLToPath } from 'url';
 import objA from "./files/a.json" assert { type: "json" };
 import objB from "./files/b.json" assert { type: "json" };
 import './files/c.js';
@@ -19,8 +20,11 @@ console.log(`Release ${release()}`);
 console.log(`Version ${version()}`);
 console.log(`Path segment separator is "${sep}"`);
 
-console.log(`Path to current file is ${import.meta.url}`);
-console.log(`Path to current directory is ${new URL('.', import.meta.url).pathname}`);
+const fileName = fileURLToPath(import.meta.url);
+const dirName = dirname(fileName);
+
+console.log(`Path to current file is ${fileName}`);
+console.log(`Path to current directory is ${dirName}`);
 
 const myServer = createServerHttp((_, res) => {
     res.end('Request accepted');
