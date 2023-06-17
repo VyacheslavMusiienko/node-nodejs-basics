@@ -2,19 +2,15 @@ import { createServer as createServerHttp } from 'http';
 import { release, version } from 'os';
 import { dirname, sep } from 'path';
 import { fileURLToPath } from 'url';
-import objA from "./files/a.json" assert { type: "json" };
-import objB from "./files/b.json" assert { type: "json" };
 import './files/c.js';
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
 const random = Math.random();
 
-let unknownObject;
-
-if (random > 0.5) {
-    unknownObject = objA;
-} else {
-    unknownObject = objB;
-}
+const unknownObject =  random > 0.5
+    ? require('./files/a.json', {assert: {type: 'json'}})
+    : require('./files/b.json', {assert: {type: 'json'}});
 
 console.log(`Release ${release()}`);
 console.log(`Version ${version()}`);
